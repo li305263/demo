@@ -39,7 +39,7 @@ var pipesW = 54
 var pipesX = config.width
 var rd,topY,bottomY;
 var game = new Phaser.Game(config);
-// 预加载
+// loading函数
 function loadFn(){
     var progressBar = this.add.graphics();
     var progressBox = this.add.graphics();
@@ -101,7 +101,9 @@ function loadFn(){
         assetText.destroy();
     }); 
 }
+// 预加载
 function loadPreload() {
+    loadFn.call(this)
     // 加载图片资源
     // this.load.image('preloader','assets/preloader.gif')
     this.load.image('title','assets/title.png')
