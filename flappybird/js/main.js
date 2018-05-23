@@ -39,7 +39,65 @@ var pipesW = 54
 var pipesX = config.width
 var rd,topY,bottomY;
 var game = new Phaser.Game(config);
-// loading函数
+// loding函数
+function loadFn(){
+    var progressBar = this.add.graphics();
+    var progressBox = this.add.graphics();
+    progressBox.fillStyle(0x222222, 0.8);
+    progressBox.fillRect(240, 270, 320, 50);
+    
+    var width = this.cameras.main.width;
+    var height = this.cameras.main.height;
+    var loadingText = this.make.text({
+        x: width / 2,
+        y: height / 2 - 50,
+        text: 'Loading...',
+        style: {
+            font: '20px monospace',
+            fill: '#ffffff'
+        }
+    });
+    loadingText.setOrigin(0.5, 0.5);
+    
+    var percentText = this.make.text({
+        x: width / 2,
+        y: height / 2 - 5,
+        text: '0%',
+        style: {
+            font: '18px monospace',
+            fill: '#ffffff'
+        }
+    });
+    percentText.setOrigin(0.5, 0.5);
+    
+    var assetText = this.make.text({
+        x: width / 2,
+        y: height / 2 + 50,
+        text: '',
+        style: {
+            font: '18px monospace',
+            fill: '#ffffff'
+        }
+    });
+
+    assetText.setOrigin(0.5, 0.5);
+    
+    this.load.on('progress', function (value) {
+        percentText.setText(parseInt(value * 100) + '%');
+        progressBar.clear();
+        progressBar.fillStyle(0xffffff, 1);
+        progressBar.fillRect(250, 280, 300 * value, 30);
+    });
+
+    this.load.on('complete', function () {
+        progressBar.destroy();
+        progressBox.destroy();
+        loadingText.destroy();
+        percentText.destroy();
+        assetText.destroy();
+    }); 
+}
+// 预加载
 function loadFn(){
     var progressBar = this.add.graphics();
     var progressBox = this.add.graphics();
@@ -101,9 +159,7 @@ function loadFn(){
         assetText.destroy();
     }); 
 }
-// 预加载
 function loadPreload() {
-    loadFn.call(this)
     // 加载图片资源
     // this.load.image('preloader','assets/preloader.gif')
     this.load.image('title','assets/title.png')
@@ -185,6 +241,7 @@ function updatePipes(that){
 }
 // 游戏开始
 function gameCreate() { 
+    var that = this
     //添加物理物体组
     platforms = this.physics.add.group()
     // platforms.enableBody = true;
@@ -196,6 +253,19 @@ function gameCreate() {
     scoreText.setFontSize(36);
     //添加有重力的游戏角色
     player = this.physics.add.sprite(100,100,'bird')
+
+    //添加按下事件监听
+    this.input.on('pointerdown', function(pointer, currentlyOver){
+        if(OVER) return;
+        that.tweens.add({
+            targets: player,
+            duration:50,
+            angle:-30,
+        })
+        //设置角色Y轴速度
+        player.setVelocityY(-200)     
+    });
+
     // 角色飞行动画   
     player.anims.play('fly')
 }
@@ -271,16 +341,6 @@ function update() {
         gameOver()
         console.log('碰撞了地面')
     })
-    //添加按下事件监听
-    this.input.on('pointerdown', function(pointer, currentlyOver){
-        if(OVER) return;
-        that.tweens.add({
-            targets: player,
-            duration:50,
-            angle:-30,
-        })
-        //设置角色Y轴速度
-        player.setVelocityY(-200)     
-    });
+    
     
 }
